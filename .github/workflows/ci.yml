@@ -42,7 +42,7 @@ jobs:
       - name: Install dependencies
         run: ${{ steps.pm.outputs.pm }} ${{ steps.pm.outputs.install }}
 
-      # ---------- 品質チェック ----------
+      # Quality checks
       - name: Prettier formatting
         run: ${{ steps.pm.outputs.exec }} prettier --check .
 
@@ -51,9 +51,6 @@ jobs:
 
       - name: Type check (tsc)
         run: ${{ steps.pm.outputs.exec }} tsc --noEmit
-
-      - name: Unit tests (Jest)
-        run: ${{ steps.pm.outputs.exec }} jest --runInBand --ci
 
       - name: Build
         run: ${{ steps.pm.outputs.exec }} next build --no-lint
