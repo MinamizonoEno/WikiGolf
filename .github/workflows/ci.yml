@@ -1,0 +1,59 @@
+name: Quality checks (Next.js)
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect package manager
+        id: pm
+        run: |
+          if [ -f yarn.lock ]; then
+            echo "pm=yarn" >> $GITHUB_OUTPUT
+            echo "install=install" >> $GITHUB_OUTPUT
+            echo "exec=yarn" >> $GITHUB_OUTPUT
+          else
+            echo "pm=npm" >> $GITHUB_OUTPUT
+            echo "install=ci" >> $GITHUB_OUTPUT
+            echo "exec=npx" >> $GITHUB_OUTPUT
+          fi
+
+      # Node.js のセットアップ
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: ${{ steps.pm.outputs.pm }}
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ steps.pm.outputs.pm }}-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-${{ steps.pm.outputs.pm }}-
+      - name: Install dependencies
+        run: ${{ steps.pm.outputs.pm }} ${{ steps.pm.outputs.install }}
+
+      # ---------- 品質チェック ----------
+      - name: Prettier formatting
+        run: ${{ steps.pm.outputs.exec }} prettier --check .
+
+      - name: Lint (ESLint)
+        run: ${{ steps.pm.outputs.exec }} next lint
+
+      - name: Type check (tsc)
+        run: ${{ steps.pm.outputs.exec }} tsc --noEmit
+
+      - name: Unit tests (Jest)
+        run: ${{ steps.pm.outputs.exec }} jest --runInBand --ci
+
+      - name: Build
+        run: ${{ steps.pm.outputs.exec }} next build --no-lint
