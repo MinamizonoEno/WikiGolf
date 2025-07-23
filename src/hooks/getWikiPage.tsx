@@ -18,8 +18,8 @@ export default function GetWikiPage({ title, onLoaded }: Props) {
         if (!res.ok) throw new Error('Fetch failed')
         const text = await res.text()
         onLoaded(text)
-      } catch (e: any) {
-        if (e.name !== 'AbortError') console.error(e)
+      } catch (e: unknown) {
+        if (e instanceof Error && e.name !== 'AbortError') console.error(e)
       }
     }
 

@@ -13,7 +13,7 @@ export function sanitizeContent(container: HTMLDivElement | null) {
     if (!section) return
     section.querySelectorAll('a').forEach(a => {
       const span = document.createElement('span')
-      span.innerHTML = a.innerHTML
+      span.textContent = a.textContent
       span.className = a.className
       a.replaceWith(span)
     })
