@@ -1,5 +1,5 @@
-import GetWikiPage from '@/hooks/getwikipage'
-import { sanitizeContent } from '@/lib/sanitizeContent'
+import GetWikiPage from '@/hooks/getWikiPage'
+import { sanitizeContent } from '@/libs/sanitizeContent'
 import { useState, useRef, useEffect, useCallback } from 'react'
 
 export default function Wiki() {
