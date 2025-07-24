@@ -3,7 +3,7 @@ import { sanitizeContent } from '@/libs/sanitizeContent'
 import { useState, useRef, useEffect, useCallback } from 'react'
 
 export default function Wiki() {
-  const [currentPage, setCurrentPage] = useState('リンデマンの定理')
+  const [currentPage, setCurrentPage] = useState('円周率')
   const [html, setHtml] = useState('')
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -26,6 +26,14 @@ export default function Wiki() {
     }
   }, [])
 
+  useEffect(() => {
+    const prevHtml = document.documentElement.style.overflowY
+    document.documentElement.style.overflowY = 'hidden'
+    return () => {
+      document.documentElement.style.overflowY = prevHtml
+    }
+  }, [])
+
   const handleClick = useCallback<React.MouseEventHandler<HTMLDivElement>>(e => {
     const target = e.target as HTMLElement
     const link = target.closest('a')
@@ -38,9 +46,9 @@ export default function Wiki() {
   }, [])
 
   return (
-    <main ref={containerRef} className="flex h-screen w-full overflow-auto" onClick={handleClick}>
+    <main ref={containerRef} className="flex h-screen w-full overflow-hidden" onClick={handleClick}>
       <GetWikiPage title={currentPage} onLoaded={setHtml} />
-      <div className="mw-parser-output max-w-none" dangerouslySetInnerHTML={{ __html: html }} />
+      <div className="mw-parser-output overflow-auto max-w-none" dangerouslySetInnerHTML={{ __html: html }} />
     </main>
   )
 }
